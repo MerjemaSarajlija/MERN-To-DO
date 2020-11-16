@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
-import { v4 as uuid } from 'uuid';
-import { useDispatch, useSelector } from 'react-redux';
-import { connect } from 'react-redux';
-import { getItems, deleteItem } from '../actions/itemActions';
-import PropTypes from 'prop-types';
-
-
-
-
-
+import { v4 as uuid } from "uuid";
+import { useDispatch, useSelector } from "react-redux";
+import { connect } from "react-redux";
+import { getItems, deleteItem, updateItem } from "../actions/itemActions";
+import PropTypes from "prop-types";
 
 const onDragEnd = (result, columns, setColumns) => {
   if (!result.destination) return;
@@ -26,12 +21,12 @@ const onDragEnd = (result, columns, setColumns) => {
       ...columns,
       [source.droppableId]: {
         ...sourceColumn,
-        items: sourceItems
+        items: sourceItems,
       },
       [destination.droppableId]: {
         ...destColumn,
-        items: destItems
-      }
+        items: destItems,
+      },
     });
   } else {
     const column = columns[source.droppableId];
@@ -42,127 +37,142 @@ const onDragEnd = (result, columns, setColumns) => {
       ...columns,
       [source.droppableId]: {
         ...column,
-        items: copiedItems
-      }
+        items: copiedItems,
+      },
     });
   }
 };
 
 export function KanbanBoard() {
-  
   const dispatch = useDispatch();
-  
-  const { item } = useSelector(
-    state => ({
-      item: state.item
-    })
-  );
+
+  function update(form, id) {
+    dispatch(updateItem(form, id))
+}
+
+  const { item } = useSelector((state) => ({
+    item: state.item,
+  }));
 
   useEffect(() => {
     dispatch(getItems());
   }, [dispatch]);
 
-  const {items, loading} = item;
-  console.log(items)
-  console.log(loading)
-  //const [itemsFromBackend, setItemsFromBackend] =  useState(items);
-  const columnsFromBackend = {
-    [uuid()]: {
-       name: "To do",
-       items: items
-     },
-     [uuid()]: {
-       name: "In Progress",
-       items: []
-     },
-     [uuid()]: {
-       name: "Done",
-       items: []
-     }
-   };
-   console.log("col fr back "+columnsFromBackend)
-const [columns, setColumns] = useState(columnsFromBackend);
-console.log(columns);
+  const { items } = item;
+  console.log("items  from up " + items)
 
-//useEffect(()=>console.log(columns), [columns])
-return (
+  let toDoItems =[];
+  let inProgressItems = [];
+  let doneItems = [];
+  const [columns, setColumns] = useState(items);
+ useEffect(() => {
+      items.filter(item => 
+        item.phase === "to_do").map(filteredItem => {
+        toDoItems.push(filteredItem);
+      })
+      
+      items.filter(item => 
+        item.phase === "in_progress").map(filteredItem => {
+        inProgressItems.push(filteredItem);
+      })
+      
+      items.filter(item => 
+        item.phase === "done").map(filteredItem => {
+        doneItems.push(filteredItem);
+      })
+      
+    setColumns({
+      ['to_do']: {
+        name: "To do",
+        items: toDoItems,
+      },
+      ['in_progress']: {
+        name: "In Progress",
+        items: inProgressItems,
+      },
+      ['done']: {
+        name: "Done",
+        items: doneItems,
+      },
+    });
+  }, items);
+
+
+  return (
     <div style={{ display: "flex", justifyContent: "center", height: "100%" }}>
       <DragDropContext
-        onDragEnd={result => onDragEnd(result, columns, setColumns)}
+        onDragEnd={(result) => {
+          console.log(result);
+
+          update({"phase":result.destination.droppableId}, result.draggableId);
+          onDragEnd(result, columns, setColumns)}
+        }
       >
-        {Object.entries(columns).map(([columnId, column], index) => {
-          return (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center"
-              }}
-              key={columnId}
-            >
-              <h2>{column.name}</h2>
-              <div style={{ margin: 8 }}>
-                <Droppable droppableId={columnId} key={columnId}>
-                  {(provided, snapshot) => {
-                    return (
-                      <div
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                        style={{
-                          background: snapshot.isDraggingOver
-                            ? "lightblue"
-                            : "lightgrey",
-                          padding: 4,
-                          width: 250,
-                          minHeight: 500
-                        }}
+        {Object.entries(columns).map(([columnId, column], index) => (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+            key={columnId}
+          >
+            <h2>{column.name}</h2>
+            <div style={{ margin: 8 }}>
+              <Droppable droppableId={columnId} key={columnId}>
+                {(provided, snapshot) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    style={{
+                      background: snapshot.isDraggingOver
+                        ? "lightblue"
+                        : "lightgrey",
+                      padding: 4,
+                      width: 250,
+                      minHeight: 500,
+                    }}
+                  >
+                    {column.items.map((item, index) => (
+                      <Draggable
+                        key={item._id}
+                        draggableId={item._id}
+                        index={index}
                       >
-                        {column.items.map((item, index) => {
+                        {(provided, snapshot) => {
                           return (
-                            <Draggable
-                              key={item._id}
-                              draggableId={item._id}
-                              index={index}
-                            >
-                              {(provided, snapshot) => {
-                                return (
-                                  <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    style={{
-                                      userSelect: "none",
-                                      padding: 16,
-                                      margin: "0 0 8px 0",
-                                      minHeight: "50px",
-                                      backgroundColor: snapshot.isDragging
-                                        ? "#263B4A"
-                                        : "#456C86",
-                                      color: "white",
-                                      ...provided.draggableProps.style
-                                    }}
-                                  >
-                                    {item.name}
-                                  </div>
-                                );
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              style={{
+                                userSelect: "none",
+                                padding: 16,
+                                margin: "0 0 8px 0",
+                                minHeight: "50px",
+                                backgroundColor: snapshot.isDragging
+                                  ? "#263B4A"
+                                  : "#456C86",
+                                color: "white",
+                                ...provided.draggableProps.style,
                               }}
-                            </Draggable>
+                            >
+                              {item.name}
+                            </div>
                           );
-                        })}
-                        {provided.placeholder}
-                      </div>
-                    );
-                  }}
-                </Droppable>
-              </div>
+                        }}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </DragDropContext>
     </div>
   );
 }
-
-
 
 export default KanbanBoard;

@@ -9,6 +9,10 @@ const ItemSchema = new Schema({
     date : {
         type: Date,
         default : Date.now
+    },
+    phase : {
+        type: String,
+        default: "to_do"
     }
 });
 
