@@ -14,12 +14,9 @@ const User = require('../../models/User');
 router.post('/', (req, res) => {
   const { name, email, password } = req.body;
   //Simple validation
-  if (!name || !email || !password ) {
+  if (!name || !email || !password) {
     return res.status(400).json({ msg: 'Please enter all fields' });
   }
-  console.log("name"+name);
-  console.log("email" + email);
-  console.log("password " + password);
   //Check for existing user
   User.findOne({ email })
     .then(user => {
@@ -27,44 +24,35 @@ router.post('/', (req, res) => {
       const newUser = new User({
         name,
         email,
-        password, 
+        password,
       });
       //create salt & hash
-        bcrypt.genSalt(10, (err, salt) => {
-          bcrypt.hash(newUser.password, salt, (err, hash) => {
-            if (err) throw err;
-            newUser.password = hash;
-            newUser.save()
-              .then(user => {
-                jwt.sign(
-                  { id: user.id },
-                  config.get('jwtSecret'),
-                  (err, token) => {
-                    if (err) throw err;
-                    res.json({
-                      token,
-                      user: {
-                        id: user.id,
-                        name: user.name,
-                        email: user.email,
-                        companyID: user.companyID
-                      }
-                    });
-                  }
-                )
-              })
-          })
+      bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(newUser.password, salt, (err, hash) => {
+          if (err) throw err;
+          newUser.password = hash;
+          newUser.save()
+            .then(user => {
+              jwt.sign(
+                { id: user.id },
+                config.get('jwtSecret'),
+                (err, token) => {
+                  if (err) throw err;
+                  res.json({
+                    token,
+                    user: {
+                      id: user.id,
+                      name: user.name,
+                      email: user.email,
+                    }
+                  });
+                }
+              )
+            })
         })
-       })
-     });
-
-
-
-
-
-
-
-
+      })
+    })
+});
 
 
 module.exports = router;

@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
-import { v4 as uuid } from "uuid";
 import { useDispatch, useSelector } from "react-redux";
-import { connect } from "react-redux";
 import { getItems, deleteItem, updateItem } from "../actions/itemActions";
-import PropTypes from "prop-types";
+import ItemModal from './ItemModal';
 
 const onDragEnd = (result, columns, setColumns) => {
   if (!result.destination) return;
@@ -59,7 +57,6 @@ export function KanbanBoard() {
   }, [dispatch]);
 
   const { items } = item;
-  console.log("items  from up " + items)
 
   let toDoItems =[];
   let inProgressItems = [];
@@ -95,17 +92,16 @@ export function KanbanBoard() {
         items: doneItems,
       },
     });
-  }, items);
+  }, [items]);
 
 
   return (
     <div style={{ display: "flex", justifyContent: "center", height: "100%" }}>
+      < ItemModal/>
       <DragDropContext
         onDragEnd={(result) => {
-          console.log(result);
-
-          update({"phase":result.destination.droppableId}, result.draggableId);
-          onDragEnd(result, columns, setColumns)}
+           update({"phase":result.destination.droppableId}, result.draggableId);
+           onDragEnd(result, columns, setColumns)}
         }
       >
         {Object.entries(columns).map(([columnId, column], index) => (
