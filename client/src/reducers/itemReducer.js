@@ -24,17 +24,17 @@ export default function (state = initialState, action) {
                 items: [action.payload, ...state.items]
             }
         case UPDATE_ITEM:
-            state.items.forEach(item => {
-                if (item._id !== action.payload._id && item.phase !== action.payload.phase) {
-                    var index = state.items.findIndex(function (o) {
-                        return o._id === action.payload._id;
-                    })
-                    if (index !== -1) state.items.splice(index, 1);
-                   }
-            })
+            console.log(action.payload);
             return {
                 ...state,
-                items: state.items
+                items: state.items.map(
+                    item => 
+                      item._id === action.payload._id
+                        //return action payload (modified item) instead of
+                        //  original item when item id is updated item id
+                        ? action.payload
+                        : item//ids not the same, return original item
+                  )
             }
         case ITEMS_LOADING:
             return {
@@ -43,5 +43,5 @@ export default function (state = initialState, action) {
             }
         default:
             return state;
-      }
+    }
 }
