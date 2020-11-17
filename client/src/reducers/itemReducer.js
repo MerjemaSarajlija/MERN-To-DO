@@ -24,10 +24,18 @@ export default function (state = initialState, action) {
                 items: [action.payload, ...state.items]
             }
         case UPDATE_ITEM:
-            return { 
-                ...state, 
-              //  items: state.items.filter(item => item._id !== action.payload)
-                  }
+            state.items.forEach(item => {
+                if (item._id !== action.payload._id && item.phase !== action.payload.phase) {
+                    var index = state.items.findIndex(function (o) {
+                        return o._id === action.payload._id;
+                    })
+                    if (index !== -1) state.items.splice(index, 1);
+                }
+            })
+            return {
+                ...state,
+                 items: state.items
+            }
         case ITEMS_LOADING:
             return {
                 ...state,

@@ -45,7 +45,7 @@ export const setItemsLoading = () => {
 
 export const updateItem = (item, id) => (dispatch, getState) => {
     axios
-        .put(`/api/items/${id}`, item, tokenConfig(getState))
+        .put(`/api/items/${id}`, item,  tokenConfig(getState))
         .then(res =>
            dispatch({
                 type: UPDATE_ITEM,
