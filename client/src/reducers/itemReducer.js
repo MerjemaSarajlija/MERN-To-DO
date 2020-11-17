@@ -30,11 +30,11 @@ export default function (state = initialState, action) {
                         return o._id === action.payload._id;
                     })
                     if (index !== -1) state.items.splice(index, 1);
-                }
+                   }
             })
             return {
                 ...state,
-                 items: state.items
+                items: state.items
             }
         case ITEMS_LOADING:
             return {
@@ -43,5 +43,5 @@ export default function (state = initialState, action) {
             }
         default:
             return state;
-    }
+      }
 }
