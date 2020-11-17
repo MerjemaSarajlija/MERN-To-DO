@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-
 import {
     Button,
     Modal,
@@ -10,9 +9,9 @@ import {
     Label,
     Input
 } from 'reactstrap';
-
 import { connect } from 'react-redux';
 import { addItem } from '../actions/itemActions';
+
 class ItemModal extends Component {
     state = {
         modal: false,
@@ -76,9 +75,10 @@ class ItemModal extends Component {
             </div>
         )
     }
-
 }
+
 const mapStateToProps = state => ({
     item:state.item
 });
-export default connect(mapStateToProps, {addItem})(ItemModal);
+
+export default connect(mapStateToProps,{addItem})(ItemModal);
