@@ -3,6 +3,8 @@ import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { useDispatch, useSelector } from "react-redux";
 import { getItems, deleteItem, updateItem } from "../actions/itemActions";
 import ItemModal from './ItemModal';
+import { Button } from 'reactstrap';
+
 
 const onDragEnd = (result, columns, setColumns) => {
   if (!result.destination) return;
@@ -46,7 +48,12 @@ export function KanbanBoard() {
 
   function update(form, id) {
     dispatch(updateItem(form, id))
-}
+  }
+
+  function onDeleteClick(id) {
+    dispatch(deleteItem(id))
+  }
+
 
   const { item } = useSelector((state) => ({
     item: state.item,
@@ -58,26 +65,26 @@ export function KanbanBoard() {
 
   const { items } = item;
 
-  let toDoItems =[];
+  let toDoItems = [];
   let inProgressItems = [];
   let doneItems = [];
   const [columns, setColumns] = useState(items);
- useEffect(() => {
-      items.filter(item => 
-        item.phase === "to_do").map(filteredItem => {
+  useEffect(() => {
+    items.filter(item =>
+      item.phase === "to_do").map(filteredItem => {
         toDoItems.push(filteredItem);
       })
-      
-      items.filter(item => 
-        item.phase === "in_progress").map(filteredItem => {
+
+    items.filter(item =>
+      item.phase === "in_progress").map(filteredItem => {
         inProgressItems.push(filteredItem);
       })
-      
-      items.filter(item => 
-        item.phase === "done").map(filteredItem => {
+
+    items.filter(item =>
+      item.phase === "done").map(filteredItem => {
         doneItems.push(filteredItem);
       })
-      
+
     setColumns({
       ['to_do']: {
         name: "To do",
@@ -96,12 +103,13 @@ export function KanbanBoard() {
 
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", height: "100%" }}>
-      < ItemModal/>
+    <div style={{ display: "flex", justifyContent: "center", height: "100%", marginTop: "3rem" }}>
+      < ItemModal />
       <DragDropContext
         onDragEnd={(result) => {
-           update({"phase":result.destination.droppableId}, result.draggableId);
-           onDragEnd(result, columns, setColumns)}
+          update({ "phase": result.destination.droppableId }, result.draggableId);
+          onDragEnd(result, columns, setColumns)
+        }
         }
       >
         {Object.entries(columns).map(([columnId, column], index) => (
@@ -153,8 +161,14 @@ export function KanbanBoard() {
                                 ...provided.draggableProps.style,
                               }}
                             >
+                               <Button
+                                className="removeBtn"
+                                size="sm"
+                                onClick={() => onDeleteClick(item._id)}
+                              >
+                                X</Button>
                               {item.name}
-                            </div>
+                             </div>
                           );
                         }}
                       </Draggable>
