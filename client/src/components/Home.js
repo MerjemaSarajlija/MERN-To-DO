@@ -13,7 +13,13 @@ class Home extends Component {
                 <Redirect to="/board" />
             )
         }
-         return <h1>Home</h1>
+         return(
+            <div className = "bgimg">
+                <div className="middle">
+                    <h1>REGISTER AND MANAGE YOUR HOUSE MOVING TASKS </h1>
+                 </div>
+           </div>
+         )
    }
 }
 
